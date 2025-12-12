@@ -406,9 +406,9 @@ Order_Product Table (Many-to-Many)
 ## File Structure
 
 ```
-backend/
+alx_backend_graphql_crm/
 ├── venv/                           # Virtual environment
-├── alx_backend_graphql_crm/        # Django project
+├── alx_backend_graphql/        # Django project
 │   ├── __init__.py
 │   ├── settings.py                 # Django settings with GraphQL config
 │   ├── urls.py                     # URL routing
@@ -472,7 +472,7 @@ backend/
 
 ### 1. Setup
 ```bash
-cd backend
+cd alx_backend_graphql_crm
 python3 -m venv venv
 source venv/bin/activate
 pip install Django graphene-django django-filter
