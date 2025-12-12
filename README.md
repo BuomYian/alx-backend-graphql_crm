@@ -5,8 +5,8 @@ A comprehensive GraphQL-based Customer Relationship Management (CRM) system buil
 ## Project Structure
 
 ```
-backend/
-├── alx_backend_graphql_crm/     # Django project configuration
+alx_backend_graphql_crm/
+├── alx_backend_graphql/         # Django project configuration
 │   ├── settings.py              # Project settings with GraphQL config
 │   ├── urls.py                  # URL routing and GraphQL endpoint
 │   └── schema.py                # Main GraphQL schema
