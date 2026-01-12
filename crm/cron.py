@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.utils import timezone
-import requests
-import json
+from gql import gql, Client
+from gql.transport.requests import RequestsHTTPTransport
 
 
 def log_crm_heartbeat():
@@ -18,15 +18,17 @@ def log_crm_heartbeat():
 
     # Try to verify GraphQL endpoint is responsive
     try:
-        graphql_query = {
-            'query': '{ hello }'
-        }
-        response = requests.post(
-            'http://localhost:8000/graphql',
-            json=graphql_query,
-            timeout=5
-        )
-        if response.status_code == 200:
+        transport = RequestsHTTPTransport(url="http://localhost:8000/graphql")
+        client = Client(transport=transport, fetch_schema_from_transport=False)
+
+        query = gql("""
+            {
+                hello
+            }
+        """)
+
+        result = client.execute(query)
+        if result and 'hello' in result:
             message += ' - GraphQL endpoint responsive'
     except Exception as e:
         message += f' - GraphQL endpoint check failed: {str(e)}'
