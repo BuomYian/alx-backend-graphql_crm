@@ -4,8 +4,8 @@ from graphene_django.filter import DjangoFilterConnectionField
 from graphql import GraphQLError
 from django.db import transaction
 from django.core.exceptions import ValidationError
-from .models import Customer, Product, Order
-from .filters import CustomerFilter, ProductFilter, OrderFilter
+from crm.models import Customer, Product, Order
+from crm.filters import CustomerFilter, ProductFilter, OrderFilter
 import re
 
 
