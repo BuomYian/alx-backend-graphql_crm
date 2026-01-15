@@ -169,11 +169,13 @@ class CreateOrder(graphene.Mutation):
             try:
                 customer = Customer.objects.get(id=input.customer_id)
             except Customer.DoesNotExist:
-                raise GraphQLError(f"Customer with ID {input.customer_id} not found")
+                raise GraphQLError(
+                    f"Customer with ID {input.customer_id} not found")
 
             products = Product.objects.filter(id__in=input.product_ids)
             if len(products) != len(input.product_ids):
-                missing_ids = set(input.product_ids) - set(p.id for p in products)
+                missing_ids = set(input.product_ids) - \
+                    set(p.id for p in products)
                 raise GraphQLError(f"Invalid product IDs: {missing_ids}")
 
             with transaction.atomic():
@@ -198,9 +200,12 @@ class CreateOrder(graphene.Mutation):
 
 class Query(graphene.ObjectType):
     hello = graphene.String()
-    all_customers = DjangoFilterConnectionField(CustomerType, filterset_class=CustomerFilter)
-    all_products = DjangoFilterConnectionField(ProductType, filterset_class=ProductFilter)
-    all_orders = DjangoFilterConnectionField(OrderType, filterset_class=OrderFilter)
+    all_customers = DjangoFilterConnectionField(
+        CustomerType, filterset_class=CustomerFilter)
+    all_products = DjangoFilterConnectionField(
+        ProductType, filterset_class=ProductFilter)
+    all_orders = DjangoFilterConnectionField(
+        OrderType, filterset_class=OrderFilter)
     customer = graphene.Field(CustomerType, id=graphene.Int(required=True))
     product = graphene.Field(ProductType, id=graphene.Int(required=True))
     order = graphene.Field(OrderType, id=graphene.Int(required=True))
@@ -227,8 +232,39 @@ class Query(graphene.ObjectType):
             return None
 
 
+class UpdateLowStockProducts(graphene.Mutation):
+    updated_products = graphene.List(ProductType)
+    updated_count = graphene.Int()
+    message = graphene.String()
+    success = graphene.Boolean()
+
+    @staticmethod
+    def mutate(root, info):
+        try:
+            low_stock_products = Product.objects.filter(stock__lt=10)
+            updated_products = []
+
+            for product in low_stock_products:
+                product.stock += 10
+                product.full_clean()
+                product.save()
+                updated_products.append(product)
+
+            message = f"Successfully updated {len(updated_products)} products with low stock"
+
+            return UpdateLowStockProducts(
+                updated_products=updated_products,
+                updated_count=len(updated_products),
+                message=message,
+                success=True
+            )
+        except Exception as e:
+            raise GraphQLError(f"Error updating low stock products: {str(e)}")
+
+
 class Mutation(graphene.ObjectType):
     create_customer = CreateCustomer.Field()
     bulk_create_customers = BulkCreateCustomers.Field()
     create_product = CreateProduct.Field()
     create_order = CreateOrder.Field()
+    update_low_stock_products = UpdateLowStockProducts.Field()
